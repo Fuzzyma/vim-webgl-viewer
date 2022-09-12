@@ -70,12 +70,7 @@ class Attribute {
   }
 
   // Converts a VIM attribute into a typed array from its raw data
-  static castData (
-    bytes: Uint8Array,
-    dataType: string
-  ): Uint8Array | Int16Array | Int32Array | Float32Array | Float64Array {
-    // This is a UInt8 array
-
+  static castData (bytes: Uint8Array, dataType: string): TypedArray {
     switch (dataType) {
       case 'float32':
         return new Float32Array(
@@ -89,10 +84,17 @@ class Attribute {
           bytes.byteOffset,
           bytes.byteLength / 8
         )
+      case 'uint8':
       case 'int8':
         return bytes
       case 'int16':
         return new Int16Array(
+          bytes.buffer,
+          bytes.byteOffset,
+          bytes.byteLength / 2
+        )
+      case 'uint16':
+        return new Uint16Array(
           bytes.buffer,
           bytes.byteOffset,
           bytes.byteLength / 2
@@ -103,9 +105,19 @@ class Attribute {
           bytes.byteOffset,
           bytes.byteLength / 4
         )
-      // case "int64": return new Int64Array(data.buffer, data.byteOffset, data.byteLength / 8);
+      case 'uint32':
+        return new Uint32Array(
+          bytes.buffer,
+          bytes.byteOffset,
+          bytes.byteLength / 4
+        )
+
+      case 'int64':
+      case 'uint64':
+        console.error('G3d: 64-bit buffers unsuported')
+        return
       default:
-        throw new Error('Unrecognized attribute data type ' + dataType)
+        console.error('Unrecognized attribute data type ' + dataType)
     }
   }
 }
